@@ -1,0 +1,28 @@
+allprojects {
+    apply plugin: 'base'
+}
+
+evaluationDependsOnChildren()
+
+subprojects {
+
+    task copyBeep(type: Copy) {
+        from "$rootDir/src"
+        into buildDir
+        include 'beep.mp3'
+    }
+
+    task compileRevealJsPrompts(type: Exec) {
+        dependsOn processPrompts, copyBeep
+        commandLine 'pandoc', 'prompts.md', '-t', 'revealjs', '-s', '--self-contained', '-V', 'theme=simple', '-o', 'prompts.html'
+        workingDir buildDir
+        outputs.file "$buildDir/prompts.html"
+    }
+
+    task compileBeamerPrompts(type: Exec) {
+        dependsOn processPrompts, copyBeep
+        commandLine 'pandoc', 'prompts.md', '-t', 'beamer', '-s', '-o', 'prompts.pdf'
+        workingDir buildDir
+        outputs.file "$buildDir/prompts.pdf"
+    }
+}
